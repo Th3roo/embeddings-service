@@ -5,8 +5,7 @@ python-dotenv
 sentence-transformers
 torch
 torchvision
-# torchaudio # Может понадобиться для некоторых конфигураций torch/CLIP
-openai-clip
+transformers
 Pillow
-python-multipart # Для загрузки файлов
-requests # Для загрузки изображений по URL (если нужно)
+python-multipart
+requests
