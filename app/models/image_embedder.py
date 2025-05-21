@@ -6,6 +6,7 @@ import requests
 from typing import List, Union
 from .base_embedder import BaseEmbedder
 
+# TODO FIX MODEL LOADING
 class ImageEmbedder(BaseEmbedder):
     """Класс для эмбеддингов изображений с использованием Hugging Face Transformers."""
     description = "Hugging Face ViT model for image embeddings."
