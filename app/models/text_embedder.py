@@ -6,14 +6,14 @@ class TextEmbedder(BaseEmbedder):
     """Класс для эмбеддингов текста с использованием SentenceTransformer."""
     description = "Sentence Transformer model for text embeddings."
 
-    def __init__(self, model_name: str = "all-MiniLM-L6-v2"):
-        super().__init__(model_name=model_name, model_type="text")
+    def __init__(self, model_name: str = "all-MiniLM-L6-v2", model_cache_dir: str = "./model_cache"):
+        super().__init__(model_name=model_name, model_type="text", model_cache_dir=model_cache_dir)
         self._dimension = 0 # Будет установлено после загрузки модели
 
     def _load_model(self):
-        print(f"Loading text model: {self.model_name}...")
+        print(f"Loading text model: {self.model_name} from cache: {self.model_cache_dir}...")
         try:
-            self.model = SentenceTransformer(self.model_name)
+            self.model = SentenceTransformer(self.model_name, cache_folder=self.model_cache_dir)
             # Получаем размерность после загрузки
             dummy_embedding = self.model.encode("test")
             self._dimension = dummy_embedding.shape[0]
@@ -39,5 +39,5 @@ class TextEmbedder(BaseEmbedder):
 
 # Пример добавления другой текстовой модели (если понадобится)
 # class AnotherTextEmbedder(TextEmbedder):
-#     def __init__(self, model_name: str = "paraphrase-multilingual-MiniLM-L12-v2"):
-#         super().__init__(model_name=model_name)
+#     def __init__(self, model_name: str = "paraphrase-multilingual-MiniLM-L12-v2", model_cache_dir: str = "./model_cache"):
+#         super().__init__(model_name=model_name, model_cache_dir=model_cache_dir)
