@@ -10,7 +10,7 @@ from .models.image_embedder import ImageEmbedder #, AnotherImageEmbedder
 REGISTERED_MODELS: Dict[str, Type[BaseEmbedder]] = {
     "all-MiniLM-L6-v2": TextEmbedder,
     # "paraphrase-multilingual-MiniLM-L12-v2": AnotherTextEmbedder, # Пример
-    "ViT-B/32": ImageEmbedder,
+    "google/vit-base-patch16-224": ImageEmbedder,
     # "ViT-L/14": AnotherImageEmbedder, # Пример
 }
 
@@ -60,7 +60,7 @@ def get_default_image_model_name() -> str:
         if klass.mro()[1] == ImageEmbedder or (hasattr(klass, 'model_type') and klass.model_type == "image"):
              if hasattr(klass('', model_type='image'), 'model_type') and klass('', model_type='image').model_type == "image": # type: ignore
                 return name # type: ignore
-    return "ViT-B/32" # fallback
+    return "google/vit-base-patch16-224" # fallback
 
 def get_available_models_info():
     infos = []
