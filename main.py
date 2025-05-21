@@ -1,43 +1,54 @@
+import logging # Import logging
+
 from fastapi import FastAPI, Depends, HTTPException, UploadFile, File, Body
 from fastapi.responses import JSONResponse
-from typing import List, Dict, Any
+from typing import List, Dict, Any, Optional
 import traceback # Для детальных ошибок
+from contextlib import asynccontextmanager # Import asynccontextmanager
 
-# Обновленные импорты
 from app.schemas import (
     TextRequest,
     ImageUrlRequest,
     EmbeddingResponse,
     AvailableModelsResponse,
     ModelInfo
+    
 )
 from app.auth import get_api_key
-from app.models import get_embedder_instance, get_default_text_model_name, get_default_image_model_name, get_available_models_info, preload_models
+from app import get_embedder_instance, get_default_text_model_name, get_default_image_model_name, get_available_models_info, preload_models
+
+# --- Настройка логирования ---
+logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
+logger = logging.getLogger(__name__)
+
+# --- События жизненного цикла (Lifespan) ---
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    """Действия при старте и завершении приложения, например, предзагрузка моделей."""
+    logger.info("Application startup...")
+    try:
+        preload_models() # Предзагружаем все зарегистрированные модели
+    except Exception as e:
+        logger.error(f"Error during model preloading: {e}", exc_info=True)
+    logger.info("Application ready.")
+    yield # Приложение работает здесь
+    # Здесь можно добавить код для завершения работы, если нужно
+    logger.info("Application shutdown.")
+
 
 # --- Приложение FastAPI ---
 app = FastAPI(
     title="Embedding Service API",
     description="API для получения текстовых и графических эмбеддингов.",
     version="0.2.0",
+    lifespan=lifespan, # Указываем функцию lifespan
 )
-
-# --- События жизненного цикла ---
-@app.on_event("startup")
-async def startup_event():
-    """Действия при старте приложения, например, предзагрузка моделей."""
-    print("Application startup...")
-    try:
-        preload_models() # Предзагружаем все зарегистрированные модели
-    except Exception as e:
-        print(f"Error during model preloading: {e}")
-    print("Application ready.")
 
 # --- Обработчики ошибок ---
 @app.exception_handler(Exception)
 async def generic_exception_handler(request, exc):
     # Логирование ошибки
-    print(f"Unhandled exception: {exc}")
-    traceback.print_exc() # Печатает полный traceback в консоль сервера
+    logger.error(f"Unhandled exception: {exc}", exc_info=True)
     return JSONResponse(
         status_code=500,
         content={"message": "An internal server error occurred.", "detail": str(exc)},
@@ -87,8 +98,7 @@ async def create_text_embedding(
     except RuntimeError as re:
         raise HTTPException(status_code=503, detail=str(re))
     except Exception as e:
-        print(f"Error processing text embedding for model {model_name_to_use}: {e}")
-        traceback.print_exc()
+        logger.error(f"Error processing text embedding for model {model_name_to_use}: {e}", exc_info=True)
         raise HTTPException(status_code=500, detail=f"Internal server error: {e}")
 
 
@@ -123,8 +133,7 @@ async def create_image_embedding_upload(
     except RuntimeError as re:
         raise HTTPException(status_code=503, detail=str(re))
     except Exception as e:
-        print(f"Error processing image upload embedding for model {model_name_to_use}: {e}")
-        traceback.print_exc()
+        logger.error(f"Error processing image upload embedding for model {model_name_to_use}: {e}", exc_info=True)
         raise HTTPException(status_code=500, detail=f"Internal server error: {e}")
     finally:
         if 'image_file' in locals() and image_file:
@@ -157,6 +166,10 @@ async def create_image_embedding_url(
     except RuntimeError as re:
         raise HTTPException(status_code=503, detail=str(re))
     except Exception as e:
-        print(f"Error processing image URL embedding for model {model_name_to_use}: {e}")
-        traceback.print_exc()
+        logger.error(f"Error processing image URL embedding for model {model_name_to_use}: {e}", exc_info=True)
         raise HTTPException(status_code=500, detail=f"Internal server error: {e}")
+
+import uvicorn # Import uvicorn
+
+if __name__ == "__main__":
+    uvicorn.run(app, host="0.0.0.0", port=8000)

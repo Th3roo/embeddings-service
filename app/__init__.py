@@ -1,7 +1,7 @@
 from typing import Dict, Type
-from .base_embedder import BaseEmbedder
-from .text_embedder import TextEmbedder #, AnotherTextEmbedder
-from .image_embedder import ImageEmbedder #, AnotherImageEmbedder
+from .models.base_embedder import BaseEmbedder
+from .models.text_embedder import TextEmbedder #, AnotherTextEmbedder
+from .models.image_embedder import ImageEmbedder #, AnotherImageEmbedder
 
 # Реестр доступных моделей. Ключ - имя, которое будет использоваться в API.
 # Значение - класс эмбеддера.
