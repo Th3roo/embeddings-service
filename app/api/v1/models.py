@@ -4,6 +4,7 @@ from typing import List
 from app.schemas import ModelInfo, AvailableModelsResponse # Using existing schema names
 from app.models.text_embedder import TextEmbedder
 from app.models.image_embedder import ImageEmbedder
+from app.models.multimodal_embedder import MultimodalEmbedder
 from app.auth import get_api_key
 
 # Setup logger for this router
@@ -28,6 +29,13 @@ try:
 except Exception as e:
     logger.error(f"Failed to initialize ImageEmbedder for models endpoint: {e}", exc_info=True)
     image_embedder_instance = None
+
+try:
+    multimodal_embedder_instance = MultimodalEmbedder()
+    logger.info(f"MultimodalEmbedder loaded for models endpoint: {multimodal_embedder_instance.model_name}")
+except Exception as e:
+    logger.error(f"Failed to initialize MultimodalEmbedder for models endpoint: {e}", exc_info=True)
+    multimodal_embedder_instance = None
 
 @router.get("/models", response_model=AvailableModelsResponse, tags=["Models_v1"])
 async def list_available_models_v1(api_key: str = Depends(get_api_key)):
@@ -57,6 +65,17 @@ async def list_available_models_v1(api_key: str = Depends(get_api_key)):
         )
     else:
         logger.warning("Image embedder instance not available for /models endpoint.")
+
+    if multimodal_embedder_instance:
+        models_info_list.append(
+            ModelInfo(
+                model_name=multimodal_embedder_instance.model_name,
+                model_type="multimodal", # Ensure this matches the model_type in MultimodalEmbedder
+                description=getattr(multimodal_embedder_instance, 'description', "N/A")
+            )
+        )
+    else:
+        logger.warning("Multimodal embedder instance not available for /models endpoint.")
     
     if not models_info_list:
         # This case would mean neither embedder loaded, which is unlikely if the service is up,
