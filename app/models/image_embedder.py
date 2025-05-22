@@ -11,16 +11,20 @@ class ImageEmbedder(BaseEmbedder):
     description = "Hugging Face ViT model for image embeddings."
 
     def __init__(self, model_name: str = "google/vit-base-patch16-224", model_cache_dir: str = "./model_cache"):
+        print(f"[DEBUG ImageEmbedder __init__] Instantiating with model_name: '{model_name}', cache_dir: '{model_cache_dir}'")
         self.device = "cuda" if torch.cuda.is_available() else "cpu"
         super().__init__(model_name=model_name, model_type="image", model_cache_dir=model_cache_dir)
         self._dimension = 0 # Будет установлено после загрузки модели
         self.processor = None # Инициализируем процессор
 
     def _load_model(self):
+        print(f"[DEBUG ImageEmbedder _load_model] Called for model: '{self.model_name}' with processor: {hasattr(self, 'processor') and self.processor is not None}") # Corrected processor check
+        # Original print statement, can be kept or removed if redundant with new DEBUG prints
         print(f"Loading image model: {self.model_name} on device: {self.device} from cache: {self.model_cache_dir}...")
         try:
             self.processor = AutoImageProcessor.from_pretrained(self.model_name, cache_dir=self.model_cache_dir)
             self.model = AutoModel.from_pretrained(self.model_name, cache_dir=self.model_cache_dir).to(self.device)
+            print(f"[DEBUG ImageEmbedder _load_model] Successfully loaded model and processor for: '{self.model_name}'")
             
             # Получаем размерность после загрузки модели
             # Обычно это можно найти в конфигурации модели
@@ -43,7 +47,7 @@ class ImageEmbedder(BaseEmbedder):
 
             print(f"Image model {self.model_name} loaded. Dimension: {self._dimension}")
         except Exception as e:
-            print(f"Error loading Hugging Face model {self.model_name}: {e}")
+            print(f"[DEBUG ImageEmbedder _load_model] Error loading Hugging Face model {self.model_name}: {e}") # Added DEBUG tag
             self.model = None
             self.processor = None
             raise
