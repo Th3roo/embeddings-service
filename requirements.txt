@@ -9,3 +9,4 @@ transformers
 Pillow
 python-multipart
 requests
+hf_xet

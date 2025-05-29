@@ -23,7 +23,7 @@ except Exception as e:
     logger.error(f"Failed to initialize TextEmbedder: {e}", exc_info=True)
     text_embedder = None # Ensure it's None if loading fails
 
-@router.post("/embeddings/text", response_model=EmbeddingResponse, tags=["Embeddings_v1_Text"])
+@router.post("/embeddings/text", response_model=EmbeddingResponse)
 async def create_text_embedding_v1(
     request: TextRequest,
     api_key: str = Depends(get_api_key)

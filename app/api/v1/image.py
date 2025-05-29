@@ -21,7 +21,7 @@ except Exception as e:
     image_embedder = None # Ensure it's None if loading fails
 
 
-@router.post("/embeddings/image/upload", response_model=EmbeddingResponse, tags=["Embeddings_v1_Image"])
+@router.post("/embeddings/image/upload", response_model=EmbeddingResponse)
 async def create_image_embedding_upload_v1(
     image_file: UploadFile = File(...),
     model_name: Optional[str] = Body(None, description="Опционально: имя модели для изображений. Если не указано, используется модель по умолчанию."),
