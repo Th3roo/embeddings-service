@@ -65,7 +65,8 @@ def get_default_image_model_name() -> str:
         if klass.mro()[1] == ImageEmbedder or (hasattr(klass, 'model_type') and klass.model_type == "image"):
              if hasattr(klass('', model_type='image'), 'model_type') and klass('', model_type='image').model_type == "image": # type: ignore
                 return name # type: ignore
-    return "google/vit-base-patch16-224" # fallback updated model name
+    return "google/vit-base-patch16-224"
+
 
 def get_available_models_info():
     infos = []

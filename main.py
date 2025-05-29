@@ -23,6 +23,7 @@ from app import get_embedder_instance, get_default_text_model_name, get_default_
 from app.api.v1 import text as api_text_v1
 from app.api.v1 import image as api_image_v1
 from app.api.v1 import models as api_models_v1
+from app.api.v1 import multimodal as api_multimodal_v1
 
 
 # --- Настройка логирования ---
@@ -56,6 +57,7 @@ app = FastAPI(
 app.include_router(api_text_v1.router, prefix="/v1", tags=["V1 - Text Embeddings"])
 app.include_router(api_image_v1.router, prefix="/v1", tags=["V1 - Image Embeddings"])
 app.include_router(api_models_v1.router, prefix="/v1", tags=["V1 - Models"])
+app.include_router(api_multimodal_v1.router, prefix="/v1", tags=["V1 - Multimodal Embeddings"])
 
 
 # --- Обработчики ошибок ---
