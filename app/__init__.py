@@ -10,7 +10,7 @@ from .models.image_embedder import ImageEmbedder #, AnotherImageEmbedder
 REGISTERED_MODELS: Dict[str, Type[BaseEmbedder]] = {
     "all-MiniLM-L6-v2": TextEmbedder,
     # "paraphrase-multilingual-MiniLM-L12-v2": AnotherTextEmbedder, # Пример
-    "google/vit-base-patch16-224": ImageEmbedder,
+    "google/vit-base-patch16-224": ImageEmbedder, # Updated model name
     # "ViT-L/14": AnotherImageEmbedder, # Пример
 }
 
@@ -25,6 +25,11 @@ def get_embedder_instance(model_name: str) -> BaseEmbedder:
     """
     if model_name not in REGISTERED_MODELS:
         raise ValueError(f"Model '{model_name}' is not registered.")
+
+    # DEBUG print statement
+    print(f"[DEBUG app/__init__] Attempting to create instance for model_name: '{model_name}' using class: {REGISTERED_MODELS.get(model_name)}")
+    if model_name == "google/vit-base-patch16-224": # Use the actual corrected name
+        print(f"[DEBUG app/__init__] Matched image model: '{model_name}'. Will use ImageEmbedder.")
 
     if model_name not in LOADED_MODELS:
         print(f"Initializing model '{model_name}' for the first time...")
@@ -60,7 +65,8 @@ def get_default_image_model_name() -> str:
         if klass.mro()[1] == ImageEmbedder or (hasattr(klass, 'model_type') and klass.model_type == "image"):
              if hasattr(klass('', model_type='image'), 'model_type') and klass('', model_type='image').model_type == "image": # type: ignore
                 return name # type: ignore
-    return "google/vit-base-patch16-224" # fallback
+    return "google/vit-base-patch16-224"
+
 
 def get_available_models_info():
     infos = []

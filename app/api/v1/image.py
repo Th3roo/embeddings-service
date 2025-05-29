@@ -13,8 +13,10 @@ router = APIRouter()
 # Instantiate ImageEmbedder
 # This instance will use the default model name specified in ImageEmbedder.
 try:
+    print("[DEBUG app/api/v1/image.py] About to instantiate ImageEmbedder for the router.")
     # model_cache_dir will use the default "./model_cache"
     image_embedder = ImageEmbedder()
+    print(f"[DEBUG app/api/v1/image.py] Instantiated ImageEmbedder. Model name: {image_embedder.model_name}, Loaded: {image_embedder.model is not None}")
     logger.info(f"ImageEmbedder loaded successfully with model: {image_embedder.model_name} and dimension: {image_embedder.dimension}")
 except Exception as e:
     logger.error(f"Failed to initialize ImageEmbedder: {e}", exc_info=True)
