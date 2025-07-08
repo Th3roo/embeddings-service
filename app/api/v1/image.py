@@ -10,15 +10,12 @@ logger = logging.getLogger(__name__)
 
 router = APIRouter()
 
-# Instantiate ImageEmbedder
-# This instance will use the default model name specified in ImageEmbedder.
 try:
-    # model_cache_dir will use the default "./model_cache"
     image_embedder = ImageEmbedder()
     logger.info(f"ImageEmbedder loaded successfully with model: {image_embedder.model_name} and dimension: {image_embedder.dimension}")
 except Exception as e:
     logger.error(f"Failed to initialize ImageEmbedder: {e}", exc_info=True)
-    image_embedder = None # Ensure it's None if loading fails
+    image_embedder = None
 
 
 @router.post("/embeddings/image/upload", response_model=EmbeddingResponse, tags=["Embeddings_v1_Image"])

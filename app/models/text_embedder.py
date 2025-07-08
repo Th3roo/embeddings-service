@@ -8,19 +8,18 @@ class TextEmbedder(BaseEmbedder):
 
     def __init__(self, model_name: str = "all-MiniLM-L6-v2", model_cache_dir: str = "./model_cache"):
         super().__init__(model_name=model_name, model_type="text", model_cache_dir=model_cache_dir)
-        self._dimension = 0 # Будет установлено после загрузки модели
+        self._dimension = 0
 
     def _load_model(self):
         print(f"Loading text model: {self.model_name} from cache: {self.model_cache_dir}...")
         try:
             self.model = SentenceTransformer(self.model_name, cache_folder=self.model_cache_dir)
-            # Получаем размерность после загрузки
             dummy_embedding = self.model.encode("test")
             self._dimension = dummy_embedding.shape[0]
             print(f"Text model {self.model_name} loaded. Dimension: {self._dimension}")
         except Exception as e:
             print(f"Error loading SentenceTransformer model {self.model_name}: {e}")
-            self.model = None # Убедимся, что модель не используется, если загрузка не удалась
+            self.model = None
             raise
 
     def get_embedding(self, text: str) -> List[float]:
@@ -32,8 +31,6 @@ class TextEmbedder(BaseEmbedder):
     @property
     def dimension(self) -> int:
         if self.model is None:
-            # Можно либо вызывать ошибку, либо вернуть 0 или значение по умолчанию
-            # Для согласованности с _load_model, где устанавливается _dimension
             raise RuntimeError(f"Text model {self.model_name} is not loaded, dimension unknown.")
         return self._dimension
 
