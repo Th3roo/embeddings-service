@@ -1,8 +1,8 @@
 # app/core/config.py
 
-APP_VERSION = "0.2.0" # Example setting, matches current app version in main.py
+APP_VERSION = "0.2.0"  # Example setting, matches current app version in main.py
 SERVICE_NAME = "Embeddings Service"
-MODEL_CACHE_DIR = "./model_cache" # Documenting the default, as used in BaseEmbedder and docker-compose
+MODEL_CACHE_DIR = "./model_cache"  # Documenting the default, as used in BaseEmbedder and docker-compose
 
 # In the future, this could load settings from environment variables using Pydantic's BaseSettings
 # from pydantic_settings import BaseSettings
