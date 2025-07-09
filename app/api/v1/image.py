@@ -95,7 +95,6 @@ async def create_image_embedding_upload_v1(
 @router.post(
     "/embeddings/image/url",
     response_model=EmbeddingResponse,
-    tags=["Embeddings_v1_Image"],
 )
 async def create_image_embedding_url_v1(
     request: ImageUrlRequest, api_key: str = Depends(get_api_key)

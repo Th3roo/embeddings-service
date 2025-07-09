@@ -102,10 +102,7 @@ async def health_check():
     return {"status": "ok"}
 
 
-# Old model and embedding endpoints are removed.
-# They are now handled by the routers in app/api/v1/
-
-import uvicorn  # Import uvicorn
+import uvicorn
 
 if __name__ == "__main__":
     uvicorn.run(app, host="0.0.0.0", port=8000)

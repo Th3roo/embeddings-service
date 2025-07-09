@@ -20,7 +20,6 @@ class ImageUrlRequest(BaseModel):
     )
 
 
-
 class EmbeddingResponse(BaseModel):
     embedding: List[float]
     model_used: str

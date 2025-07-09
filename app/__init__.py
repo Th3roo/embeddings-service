@@ -53,7 +53,7 @@ def get_default_image_model_name() -> str:
             hasattr(klass, "model_type") and klass.model_type == "image"
         ):
             if hasattr(klass("", model_type="image"), "model_type") and klass("", model_type="image").model_type == "image":  # type: ignore
-                return name  
+                return name
     return "google/vit-base-patch16-224"
 
 
@@ -66,9 +66,7 @@ def get_available_models_info():
         except Exception as e:
             print(f"Could not get info for model {name} due to init error: {e}")
             model_type_from_class = "unknown"
-            if hasattr(
-                klass, "model_type"
-            ):
+            if hasattr(klass, "model_type"):
                 model_type_from_class = klass.model_type
             elif "TextEmbedder" in str(klass):
                 model_type_from_class = "text"

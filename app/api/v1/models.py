@@ -54,7 +54,7 @@ except Exception as e:
     multimodal_embedder_instance = None
 
 
-@router.get("/models", response_model=AvailableModelsResponse, tags=["Models_v1"])
+@router.get("/models", response_model=AvailableModelsResponse)
 async def list_available_models_v1(api_key: str = Depends(get_api_key)):
     """
     Возвращает список доступных (загруженных по умолчанию) моделей и их типы.
