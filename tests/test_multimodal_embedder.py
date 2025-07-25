@@ -2,8 +2,8 @@ import pytest
 from PIL import Image
 import numpy as np
 import os
-import requests  # Added import for requests
-from io import BytesIO  # Added import for BytesIO
+import requests
+from io import BytesIO
 from app.models.multimodal_embedder import MultimodalEmbedder
 
 MODEL_CACHE_DIR = "./test_model_cache"

@@ -1,6 +1,6 @@
 import pytest
 from fastapi.testclient import TestClient
-from main import app  # Import your FastAPI application
+from main import app
 import os
 from io import BytesIO
 from PIL import Image

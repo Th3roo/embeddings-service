@@ -70,23 +70,6 @@ To enhance performance and reduce redundant downloads, the service implements mo
 -   **Default Cache Location**: Models are cached by default in the `./model_cache` directory within the application's root directory (i.e., `/app/model_cache` inside the Docker container).
 -   **Persistence**: The `docker-compose.yml` file is configured to mount this `./model_cache` directory from your host machine into the container (`./model_cache:/app/model_cache`). This ensures that your downloaded models persist even if you stop and restart the Docker container, saving you from re-downloading them.
 
-## Dependencies
-
-The service relies on several Python libraries, including:
-
--   `fastapi`: For building the API.
--   `uvicorn`: As the ASGI server.
--   `pydantic`: For data validation.
--   `python-dotenv`: For managing environment variables.
--   `sentence-transformers`: For text embeddings (e.g., `all-MiniLM-L6-v2`).
--   `transformers`: From Hugging Face, for image embeddings (e.g., `google/vit-base-patch16-224`).
--   `torch`: Core deep learning library.
--   `Pillow`: For image processing.
--   `requests`: For fetching images from URLs.
--   `python-multipart`: For handling file uploads (though not explicitly used by default image embedding endpoint for direct file upload, good to have for FastAPI).
-
-These are managed via `requirements.txt`.
-
 ## Testing
 
 Unit tests are located in the `tests/` directory and can be run using:
@@ -114,7 +97,3 @@ python -m unittest discover tests
 ├── README.md             # This file
 └── requirements.txt      # Python package dependencies
 ```
-
-## Contributing
-
-Contributions are welcome! Please feel free to submit a pull request or open an issue for any bugs, feature requests, or improvements.

@@ -4,7 +4,7 @@ from typing import List
 from app.schemas import (
     ModelInfo,
     AvailableModelsResponse,
-)  # Using existing schema names
+)
 from app.models.text_embedder import TextEmbedder
 from app.models.image_embedder import ImageEmbedder
 from app.models.multimodal_embedder import MultimodalEmbedder
@@ -82,7 +82,7 @@ async def list_available_models_v1(api_key: str = Depends(get_api_key)):
         models_info_list.append(
             ModelInfo(
                 model_name=multimodal_embedder_instance.model_name,
-                model_type="multimodal",  # Ensure this matches the model_type in MultimodalEmbedder
+                model_type="multimodal",
                 description=getattr(multimodal_embedder_instance, "description", "N/A"),
             )
         )

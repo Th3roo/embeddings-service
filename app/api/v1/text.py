@@ -3,9 +3,9 @@ from fastapi import APIRouter, Depends, HTTPException
 from app.schemas import (
     TextRequest,
     EmbeddingResponse,
-)  # Using existing EmbeddingResponse
+)
 from app.models.text_embedder import TextEmbedder
-from app.auth import get_api_key  # Assuming get_api_key is accessible here or will be
+from app.auth import get_api_key
 
 logger = logging.getLogger(__name__)
 

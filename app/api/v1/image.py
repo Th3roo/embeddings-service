@@ -4,7 +4,7 @@ from fastapi import APIRouter, Depends, HTTPException, UploadFile, File, Body
 from app.schemas import (
     ImageUrlRequest,
     EmbeddingResponse,
-)  # Using existing EmbeddingResponse
+)
 from app.models.image_embedder import ImageEmbedder
 from app.auth import get_api_key
 

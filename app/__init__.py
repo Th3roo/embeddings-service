@@ -6,7 +6,7 @@ from .models.image_embedder import ImageEmbedder
 REGISTERED_MODELS: Dict[str, Type[BaseEmbedder]] = {
     "all-MiniLM-L6-v2": TextEmbedder,
     "google/vit-base-patch16-224": ImageEmbedder,
-    # "ViT-L/14": AnotherImageEmbedder, # Пример
+    # "ViT-L/14": AnotherImageEmbedder,
 }
 
 

@@ -4,13 +4,13 @@ from typing import List, Union, Optional
 from pydantic import BaseModel, HttpUrl, Field
 from PIL import (
     Image,
-)  # Required for type hinting and potentially for operations if not fully encapsulated
+)
 
 from app.models.multimodal_embedder import MultimodalEmbedder
-from app.auth import get_api_key  # For API key authentication
+from app.auth import get_api_key 
 from app.schemas import (
     EmbeddingResponse,
-)  # Assuming a generic EmbeddingResponse schema exists
+) 
 
 logger = logging.getLogger(__name__)
 

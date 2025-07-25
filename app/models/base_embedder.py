@@ -10,7 +10,7 @@ class BaseEmbedder(ABC):
         self, model_name: str, model_type: str, model_cache_dir: str = "./model_cache"
     ):
         self.model_name = model_name
-        self.model_type = model_type
+        self.model_type = model_type # text/image
         self.model_cache_dir = model_cache_dir
         self.model = None
 
