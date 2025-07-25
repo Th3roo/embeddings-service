@@ -1,120 +1,56 @@
 # Embeddings Service
 
-This service provides an API for generating text and image embeddings using pre-trained models. It is built with FastAPI and designed to be run with Docker.
+[![Python Version](https://img.shields.io/badge/python-3.9-blue.svg)](https://www.python.org/downloads/release/python-390/)
+[![FastAPI](https://img.shields.io/badge/FastAPI-0.103.2-blue)](https://fastapi.tiangolo.com/)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
-## Features
+A simple and efficient FastAPI service for generating text, image, and multimodal embeddings.
 
--   **Text Embeddings**: Utilizes Sentence Transformers (default model: `all-MiniLM-L6-v2`) to generate embeddings for text strings.
--   **Image Embeddings**: Employs Hugging Face Transformers (default model: `google/vit-base-patch16-224`) to generate embeddings for images (provided as URLs or byte content).
--   **API Key Authentication**: Protects endpoints with API key authentication.
--   **Model Caching**: Downloads and caches models locally to improve startup times and reduce reliance on internet connectivity after the initial download.
--   **Dockerized**: Easy to deploy and run using Docker and Docker Compose.
+## Getting Started
 
-## Prerequisites
+### Prerequisites
 
--   Docker
--   Docker Compose
+*   Docker
+*   Docker Compose
 
-## Setup and Running
+### Running the Service
 
 1.  **Clone the repository:**
     ```bash
     git clone <repository_url>
-    cd <directory_name_after_clone_typically_embeddings-service> 
+    cd embeddings-service
     ```
-    (Replace `<repository_url>` and `<directory_name_after_clone_typically_embeddings-service>` accordingly)
 
-2.  **Environment Variables:**
-    Create a `.env` file by copying `example.env`:
+2.  **Set up your environment:**
+    Copy the example environment file and add your API keys.
     ```bash
     cp example.env .env
     ```
-    Edit `.env` to set your desired `VALID_API_KEYS` (comma-separated if multiple).
 
-3.  **Build and Run with Docker Compose:**
+3.  **Run with Docker Compose:**
     ```bash
     docker-compose up --build
     ```
-    The service will be available at `http://localhost:8000`. The API documentation (Swagger UI) can be accessed at `http://localhost:8000/docs`.
 
-## API Endpoints
+The API will be available at `http://localhost:8000`, with interactive documentation at `http://localhost:8000/docs`.
 
--   `POST /v1/embeddings/text`: Generates text embeddings.
-    -   **Request Body**:
-        ```json
-        {
-          "input": "Your text string here"
-        }
-        ```
-    -   **Headers**: `X-API-Key: <your_api_key>`
--   `POST /v1/embeddings/image`: Generates image embeddings.
-    -   **Request Body**:
-        ```json
-        {
-          "input": "url_or_bytes_representing_image"
-        }
-        ```
-        (Input can be a publicly accessible image URL. For binary image data, ensure your client sends it appropriately, e.g., as part of a multipart/form-data request if the endpoint is adapted for it, or as raw bytes if the client and server are set up for that. The current server implementation expects URL or raw bytes directly if feasible by the HTTP client library used to call it.)
-    -   **Headers**: `X-API-Key: <your_api_key>`
--   `GET /v1/models`: Lists available models (name, type, dimension, description).
--   `GET /health`: Health check endpoint.
+## API
 
-## Model Caching
+The service provides the following main endpoints:
 
-To enhance performance and reduce redundant downloads, the service implements model caching:
+*   `POST /v1/embeddings/text`: Get embeddings for a string of text.
+*   `POST /v1/embeddings/image/upload`: Upload an image file to get its embedding.
+*   `POST /v1/embeddings/image/url`: Get the embedding of an image from a URL.
+*   `POST /v1/multimodal/embed`: Get an embedding for text or an image using a multimodal model.
+*   `GET /v1/models`: List the available models.
 
--   **How it works**: When a model is first requested (either text or image), it is downloaded from its source (e.g., Hugging Face Hub for `transformers` models, or Sentence Transformers community models) and stored locally. Subsequent requests for the same model will load it from the local cache.
--   **Benefits**:
-    -   Significantly speeds up application startup and first request times after the initial download.
-    -   Allows operation even without an internet connection once models are cached.
--   **Default Cache Location**: Models are cached by default in the `./model_cache` directory within the application's root directory (i.e., `/app/model_cache` inside the Docker container).
--   **Persistence**: The `docker-compose.yml` file is configured to mount this `./model_cache` directory from your host machine into the container (`./model_cache:/app/model_cache`). This ensures that your downloaded models persist even if you stop and restart the Docker container, saving you from re-downloading them.
+All endpoints require an `X-API-KEY` header for authentication.
 
-## Dependencies
+## Configuration
 
-The service relies on several Python libraries, including:
+Configuration is managed through environment variables in the `.env` file:
 
--   `fastapi`: For building the API.
--   `uvicorn`: As the ASGI server.
--   `pydantic`: For data validation.
--   `python-dotenv`: For managing environment variables.
--   `sentence-transformers`: For text embeddings (e.g., `all-MiniLM-L6-v2`).
--   `transformers`: From Hugging Face, for image embeddings (e.g., `google/vit-base-patch16-224`).
--   `torch`: Core deep learning library.
--   `Pillow`: For image processing.
--   `requests`: For fetching images from URLs.
--   `python-multipart`: For handling file uploads (though not explicitly used by default image embedding endpoint for direct file upload, good to have for FastAPI).
+*   `VALID_API_KEYS`: A comma-separated list of valid API keys.
+*   `MODEL_CACHE_DIR`: The directory to store downloaded models (defaults to `./model_cache`).
 
-These are managed via `requirements.txt`.
-
-## Testing
-
-Unit tests are located in the `tests/` directory and can be run using:
-
-```bash
-python -m unittest discover tests
-```
-(Ensure you have the necessary dependencies installed in your environment if running tests outside of Docker, e.g., by creating a virtual environment and running `pip install -r requirements.txt`).
-
-## Project Structure
-
-```
-.
-├── app/                  # Main application code
-│   ├── api/              # API endpoint definitions (routers)
-│   │   └── v1/           # API version 1
-│   ├── models/           # Embedding model logic (base, image, text)
-│   └── core/             # Configuration, security, etc.
-├── tests/                # Unit tests
-├── .env                  # Local environment variables (gitignored)
-├── example.env           # Example environment variables file
-├── Dockerfile            # Instructions for building the Docker image
-├── docker-compose.yml    # Docker Compose configuration for local development
-├── main.py               # FastAPI application entry point
-├── README.md             # This file
-└── requirements.txt      # Python package dependencies
-```
-
-## Contributing
-
-Contributions are welcome! Please feel free to submit a pull request or open an issue for any bugs, feature requests, or improvements.
+The `docker-compose.yml` file mounts the model cache directory to persist models between container restarts.

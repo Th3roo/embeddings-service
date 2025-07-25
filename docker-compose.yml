@@ -6,10 +6,9 @@ services:
     ports:
       - "8000:8000"
     volumes:
-      - ./app:/app/app # Mounts the app code
-      - ./main.py:/app/main.py # Mounts the main.py file
-      - ./.env:/app/.env # Mounts the .env file
-      - ./model_cache:/app/model_cache # Persists downloaded models
-    # Optional: Environment variable to configure model cache directory if needed in the future
+      - ./app:/app/app
+      - ./main.py:/app/main.py
+      - ./.env:/app/.env
+      - ./model_cache:/app/model_cache
     # environment:
     #   MODEL_CACHE_DIR: /app/model_cache
