@@ -12,13 +12,10 @@ from app.schemas import (
     EmbeddingResponse,
 )  # Assuming a generic EmbeddingResponse schema exists
 
-# Setup logger for this router
 logger = logging.getLogger(__name__)
 
 router = APIRouter()
 
-# Try to instantiate the MultimodalEmbedder
-# This instance will be used by the endpoint
 try:
     multimodal_embedder = MultimodalEmbedder()
     logger.info(
@@ -29,29 +26,20 @@ except Exception as e:
         f"Failed to initialize MultimodalEmbedder for /v1/multimodal/embed endpoint: {e}",
         exc_info=True,
     )
-    multimodal_embedder = None  # Set to None if loading fails
-
-# This is a Pydantic model for the request body, but we are using Form inputs for this endpoint.
-# It's good for documentation or if we switch to JSON body later for some fields.
-# class MultimodalEmbeddingRequest(BaseModel):
-# text: Optional[str] = None
-# image_url: Optional[HttpUrl] = None
-# If we want to support model selection in the future, add:
-# model_name: Optional[str] = "sentence-transformers/clip-ViT-B-32-multilingual-v1"
+    multimodal_embedder = None
 
 
 @router.post("/multimodal/embed", response_model=EmbeddingResponse)
 async def get_multimodal_embedding_v1(
     text: Optional[str] = Form(None, description="Text to embed."),
-    # Receive image_url as a string initially to handle potential empty string inputs
     image_url: Optional[str] = Form(None, description="URL of the image to embed."),
     image_file: Optional[UploadFile] = File(None, description="Image file to embed."),
     api_key: str = Depends(get_api_key),
 ):
     """
-    Генерирует эмбеддинг для текста или изображения с использованием мультимодальной модели.
+    Generates an embedding for text or an image using a multimodal model.
 
-    Предоставьте либо 'text', либо 'image_url', либо 'image_file'.
+    Provide either 'text', 'image_url', or 'image_file'.
     """
     if not multimodal_embedder:
         logger.error(
@@ -61,7 +49,6 @@ async def get_multimodal_embedding_v1(
             status_code=503, detail="Multimodal embedding model is not available."
         )
 
-    # Determine which input was actually provided, treating None and empty strings as not provided
     is_text_provided = text is not None and text != ""
     is_image_url_provided = image_url is not None and image_url != ""
     is_image_file_provided = image_file is not None
@@ -83,7 +70,6 @@ async def get_multimodal_embedding_v1(
             embedding_input = text
             logger.info(f"Processing multimodal embedding for text: {text[:50]}...")
         elif is_image_url_provided:
-            # If image_url is provided, validate it as an HttpUrl
             try:
                 valid_image_url = HttpUrl(image_url)
             except Exception:
@@ -99,26 +85,22 @@ async def get_multimodal_embedding_v1(
             embedding_input = pil_image
             logger.info(f"Processing multimodal embedding for image URL: {image_url}")
         elif is_image_file_provided:
-            # Ensure content type is an image
             if not image_file.content_type or not image_file.content_type.startswith(
                 "image/"
             ):
-                # Remember to close the file in case of error before reading bytes
                 await image_file.close()
                 raise HTTPException(
                     status_code=400,
                     detail=f"Invalid image file type: {image_file.content_type}. Please upload a valid image (e.g., JPEG, PNG).",
                 )
             image_bytes = await image_file.read()
-            await image_file.close()  # Close the file after reading
-            # Use the helper from MultimodalEmbedder to load image from bytes
+            await image_file.close()
             pil_image = multimodal_embedder._load_image_from_source(image_bytes)
             embedding_input = pil_image
             logger.info(
                 f"Processing multimodal embedding for uploaded image file: {image_file.filename} (type: {image_file.content_type})"
             )
         else:
-            # This case should be caught by input_type_provided_count check, but as a fallback:
             raise HTTPException(
                 status_code=400,
                 detail="No input provided. Please provide 'text', 'image_url', or 'image_file'.",
@@ -132,7 +114,7 @@ async def get_multimodal_embedding_v1(
 
         return EmbeddingResponse(
             model_name=multimodal_embedder.model_name,
-            model_type="multimodal",  # This should match the model_type in MultimodalEmbedder
+            model_type="multimodal",
             embedding=embedding_vector,
             model_used=multimodal_embedder.model_name,
             dim=multimodal_embedder.dimension,
@@ -147,19 +129,17 @@ async def get_multimodal_embedding_v1(
             exc_info=True,
         )
         raise HTTPException(status_code=503, detail=f"Model runtime error: {re}")
-    except HTTPException as http_exc:  # Re-raise HTTPExceptions directly
-        # Ensure file is closed even if HTTPException is re-raised from image_file processing
+    except HTTPException as http_exc:
         if is_image_file_provided and image_file:
             try:
                 await image_file.close()
             except Exception:
-                pass  # Ignore errors during close if already closed or invalid object
+                pass
         raise http_exc
     except Exception as e:
         logger.error(
             f"Unexpected error during multimodal embedding: {e}", exc_info=True
         )
-        # Ensure file is closed on unexpected errors
         if is_image_file_provided and image_file:
             try:
                 await image_file.close()

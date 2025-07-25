@@ -7,9 +7,8 @@ from typing import List, Union
 from .base_embedder import BaseEmbedder
 
 
-# TODO FIX MODEL(google/vit-base-patch16-224) LOADING or swap to another model
 class ImageEmbedder(BaseEmbedder):
-    """Класс для эмбеддингов изображений с использованием Hugging Face Transformers."""
+    """Class for image embeddings using Hugging Face Transformers."""
 
     description = "Hugging Face ViT model for image embeddings."
 
@@ -25,14 +24,13 @@ class ImageEmbedder(BaseEmbedder):
         super().__init__(
             model_name=model_name, model_type="image", model_cache_dir=model_cache_dir
         )
-        self._dimension = 0  # Будет установлено после загрузки модели
-        self.processor = None  # Инициализируем процессор
+        self._dimension = 0
+        self.processor = None
 
     def _load_model(self):
         print(
             f"[DEBUG ImageEmbedder _load_model] Called for model: '{self.model_name}' with processor: {hasattr(self, 'processor') and self.processor is not None}"
-        )  # Corrected processor check
-        # Original print statement, can be kept or removed if redundant with new DEBUG prints
+        )
         print(
             f"Loading image model: {self.model_name} on device: {self.device} from cache: {self.model_cache_dir}..."
         )
@@ -47,14 +45,9 @@ class ImageEmbedder(BaseEmbedder):
                 f"[DEBUG ImageEmbedder _load_model] Successfully loaded model and processor for: '{self.model_name}'"
             )
 
-            # Получаем размерность после загрузки модели
-            # Обычно это можно найти в конфигурации модели
             if hasattr(self.model.config, "hidden_size"):
                 self._dimension = self.model.config.hidden_size
             else:
-                # Fallback: если hidden_size нет, можно попробовать тестовый прогон
-                # Однако, для ViT моделей hidden_size обычно есть.
-                # Этот fallback может потребовать адаптации под конкретный вывод модели ViT
                 dummy_image = Image.new(
                     "RGB", (self.processor.size["height"], self.processor.size["width"])
                 )
@@ -63,20 +56,14 @@ class ImageEmbedder(BaseEmbedder):
                 )
                 with torch.no_grad():
                     outputs = self.model(**inputs)
-                    # Для ViT, часто интересует эмбеддинг CLS токена или усредненный пул
-                    # last_hidden_state имеет размер (batch_size, sequence_length, hidden_size)
-                    # CLS токен обычно первый: outputs.last_hidden_state[:, 0, :]
-                    # Здесь мы просто проверяем последнюю размерность
                     dummy_embedding = outputs.last_hidden_state
-                self._dimension = dummy_embedding.shape[
-                    -1
-                ]  # Берем последнюю размерность
+                self._dimension = dummy_embedding.shape[-1]
 
             print(f"Image model {self.model_name} loaded. Dimension: {self._dimension}")
         except Exception as e:
             print(
                 f"[DEBUG ImageEmbedder _load_model] Error loading Hugging Face model {self.model_name}: {e}"
-            )  # Added DEBUG tag
+            )
             self.model = None
             self.processor = None
             raise
@@ -86,7 +73,7 @@ class ImageEmbedder(BaseEmbedder):
             raise RuntimeError(f"Image model {self.model_name} is not loaded properly.")
 
         image_bytes: bytes
-        if isinstance(image_source, str):  # Если URL
+        if isinstance(image_source, str):
             try:
                 response = requests.get(image_source, timeout=10)
                 response.raise_for_status()
@@ -95,7 +82,7 @@ class ImageEmbedder(BaseEmbedder):
                 raise ValueError(
                     f"Could not download image from URL: {image_source}. Error: {e}"
                 )
-        elif isinstance(image_source, bytes):  # Если байты файла
+        elif isinstance(image_source, bytes):
             image_bytes = image_source
         else:
             raise TypeError("image_source must be bytes (file content) or str (URL).")
@@ -110,22 +97,16 @@ class ImageEmbedder(BaseEmbedder):
         with torch.no_grad():
             outputs = self.model(**inputs)
 
-        # last_hidden_state имеет размер (batch_size, sequence_length, hidden_size)
-        # Для ViT, часто берут эмбеддинг CLS токена (первый токен) или усредняют все токены.
-        # Усреднение по последовательности токенов (dim=1)
         embedding = outputs.last_hidden_state.mean(dim=1)
 
         return embedding.cpu().numpy().squeeze().tolist()
 
     @property
     def dimension(self) -> int:
-        if (
-            self._dimension == 0 and self.model is not None
-        ):  # Если модель загружена, но размерность не установлена
-            # Попытка получить размерность из конфигурации загруженной модели
+        if self._dimension == 0 and self.model is not None:
             if hasattr(self.model.config, "hidden_size"):
                 self._dimension = self.model.config.hidden_size
-            else:  # Если не удалось, вызываем ошибку, т.к. модель должна быть загружена для определения
+            else:
                 raise RuntimeError(
                     f"Image model {self.model_name} is loaded, but dimension could not be determined from config."
                 )
@@ -134,9 +115,3 @@ class ImageEmbedder(BaseEmbedder):
                 f"Image model {self.model_name} is not loaded, dimension unknown."
             )
         return self._dimension
-
-
-# Пример НЕ УДАЛЯТЬ, может пригодиться для других моделей
-# class AnotherImageEmbedder(ImageEmbedder):
-#     def __init__(self, model_name: str = "facebook/deit-base-distilled-patch16-224", model_cache_dir: str = "./model_cache"): # Пример другой модели
-#         super().__init__(model_name=model_name, model_cache_dir=model_cache_dir)

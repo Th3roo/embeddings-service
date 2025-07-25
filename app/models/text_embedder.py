@@ -4,7 +4,7 @@ from .base_embedder import BaseEmbedder
 
 
 class TextEmbedder(BaseEmbedder):
-    """Класс для эмбеддингов текста с использованием SentenceTransformer."""
+    """Class for text embeddings using SentenceTransformer."""
 
     description = "Sentence Transformer model for text embeddings."
 
@@ -50,7 +50,3 @@ class TextEmbedder(BaseEmbedder):
         return self._dimension
 
 
-# Пример добавления другой текстовой модели (если понадобится)
-# class AnotherTextEmbedder(TextEmbedder):
-#     def __init__(self, model_name: str = "paraphrase-multilingual-MiniLM-L12-v2", model_cache_dir: str = "./model_cache"):
-#         super().__init__(model_name=model_name, model_cache_dir=model_cache_dir)

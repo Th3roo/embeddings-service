@@ -26,9 +26,3 @@ async def get_api_key(api_key: str = Security(api_key_header)):
         return api_key
     else:
         raise HTTPException(status_code=403, detail="Could not validate credentials")
-
-
-# Можно добавить функцию для получения "пользователя" или данных, связанных с ключом, если нужно
-# async def get_current_user(api_key: str = Depends(get_api_key)):
-#     # Здесь можно добавить логику поиска пользователя по ключу, если это необходимо
-#     return {"api_key": api_key, "user_info": "some_user_data_if_needed"}

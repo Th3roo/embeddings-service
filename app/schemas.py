@@ -3,11 +3,11 @@ from typing import List, Optional, Union
 
 
 class TextRequest(BaseModel):
-    text: str = Field(..., example="Это пример текста для получения эмбеддинга.")
+    text: str = Field(..., example="This is an example text for getting an embedding.")
     model_name: Optional[str] = Field(
         None,
         example="all-MiniLM-L6-v2",
-        description="Опционально: указать конкретную текстовую модель, если их несколько",
+        description="Optional: specify a specific text model if there are several",
     )
 
 
@@ -16,7 +16,7 @@ class ImageUrlRequest(BaseModel):
     model_name: Optional[str] = Field(
         None,
         example="ViT-B/32",
-        description="Опционально: указать конкретную модель изображений, если их несколько",
+        description="Optional: specify a specific image model if there are several",
     )
 
 
@@ -28,7 +28,7 @@ class EmbeddingResponse(BaseModel):
 
 class ModelInfo(BaseModel):
     model_name: str
-    model_type: str  # "text" или "image"
+    model_type: str
     description: Optional[str] = None
 
 

@@ -4,13 +4,13 @@ from typing import Any, List
 
 
 class BaseEmbedder(ABC):
-    """Абстрактный базовый класс для всех моделей эмбеддингов."""
+    """Abstract base class for all embedding models."""
 
     def __init__(
         self, model_name: str, model_type: str, model_cache_dir: str = "./model_cache"
     ):
         self.model_name = model_name
-        self.model_type = model_type  # "text" или "image"
+        self.model_type = model_type
         self.model_cache_dir = model_cache_dir
         self.model = None
 
@@ -22,16 +22,16 @@ class BaseEmbedder(ABC):
                 "Model cache directory not specified. Models will be downloaded to default Hugging Face cache."
             )
 
-        self._load_model()  # Загрузка модели при инициализации
+        self._load_model()
 
     @abstractmethod
     def _load_model(self):
-        """Загружает конкретную модель. Должна быть реализована в подклассах."""
+        """Loads a specific model. Must be implemented in subclasses."""
         pass
 
     @abstractmethod
     def get_embedding(self, data: Any) -> List[float]:
-        """Генерирует эмбеддинг для входных данных. Должна быть реализована в подклассах."""
+        """Generates an embedding for the input data. Must be implemented in subclasses."""
         pass
 
     def get_model_info(self):
@@ -44,5 +44,5 @@ class BaseEmbedder(ABC):
     @property
     @abstractmethod
     def dimension(self) -> int:
-        """Возвращает размерность выходного вектора эмбеддинга."""
+        """Returns the dimension of the output embedding vector."""
         pass
