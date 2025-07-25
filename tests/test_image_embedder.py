@@ -5,7 +5,6 @@ import shutil
 from PIL import Image
 from io import BytesIO
 
-# Add project root to sys.path to allow importing app modules
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 
 from app.models.image_embedder import ImageEmbedder
@@ -17,19 +16,16 @@ class TestImageEmbedder(unittest.TestCase):
     CACHE_DIR = "./test_cache/image_models_cache"
 
     def setUp(self):
-        # Ensure cache directory exists and is empty before each test that uses it
         if os.path.exists(self.CACHE_DIR):
             shutil.rmtree(self.CACHE_DIR)
         os.makedirs(self.CACHE_DIR, exist_ok=True)
 
     def tearDown(self):
-        # Clean up cache directory after tests
         if os.path.exists(self.CACHE_DIR):
             shutil.rmtree(self.CACHE_DIR)
 
     def test_image_model_loading(self):
         print(f"Current working directory: {os.getcwd()}")
-        # Test with default model name, specify cache to avoid polluting default HF cache
         embedder = ImageEmbedder(
             model_name=self.DEFAULT_MODEL_NAME, model_cache_dir=self.CACHE_DIR
         )
@@ -42,15 +38,12 @@ class TestImageEmbedder(unittest.TestCase):
         )
 
     def test_image_embedding_generation(self):
-        # Test with default model name, specify cache
         embedder = ImageEmbedder(
             model_name=self.DEFAULT_MODEL_NAME, model_cache_dir=self.CACHE_DIR
         )
 
-        # Create a dummy image
         dummy_pil_image = Image.new("RGB", (224, 224), color="red")
 
-        # Convert to bytes
         img_byte_arr = BytesIO()
         dummy_pil_image.save(img_byte_arr, format="PNG")
         image_bytes = img_byte_arr.getvalue()
@@ -69,15 +62,9 @@ class TestImageEmbedder(unittest.TestCase):
         )
 
     def test_model_caching_for_image_embedder(self):
-        # Instantiate embedder, which should download and cache the model
         ImageEmbedder(
             model_name=self.DEFAULT_MODEL_NAME, model_cache_dir=self.CACHE_DIR
         )
-
-        # Check if the cache directory is no longer empty or contains expected model files/folders
-        # Hugging Face model cache structure can be complex (e.g. refs, blobs, snapshots).
-        # A common pattern is a 'snapshots' directory containing subdirectories for models.
-        # We'll check for non-emptiness and a 'snapshots' dir as a proxy.
 
         self.assertTrue(os.path.exists(self.CACHE_DIR), "Cache directory should exist.")
         self.assertTrue(
@@ -85,21 +72,10 @@ class TestImageEmbedder(unittest.TestCase):
             "Cache directory should not be empty after model load.",
         )
 
-        # More specific check: Hugging Face often creates a 'snapshots' folder
-        # and then a subfolder with the model's commit hash.
-        # For "google/vit-base-patch16-224", there isn't one specific file, but a directory.
-        # Let's check for *any* subdirectory within snapshots, as hash names are unpredictable.
         snapshots_path = os.path.join(
             self.CACHE_DIR, "models--" + self.DEFAULT_MODEL_NAME.replace("/", "--")
         )
-        # Alternative check for general Hugging Face structure
-        # Check for any files in common locations like 'blobs' or 'snapshots'
-        # This test assumes that *some* files will be downloaded directly into CACHE_DIR or subdirs like 'snapshots'
-        # or a directory named like 'models--google--vit-base-patch16-224'.
 
-        # A simple check that *something* related to the model is in the cache dir.
-        # The exact structure can vary based on transformers version.
-        # We look for a directory that starts with 'models--' followed by the model name.
         expected_model_dir_prefix = "models--" + self.DEFAULT_MODEL_NAME.replace(
             "/", "--"
         )

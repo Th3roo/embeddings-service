@@ -8,18 +8,14 @@ from app.schemas import (
 from app.models.image_embedder import ImageEmbedder
 from app.auth import get_api_key
 
-# Setup logger for this router
 logger = logging.getLogger(__name__)
 
 router = APIRouter()
 
-# Instantiate ImageEmbedder
-# This instance will use the default model name specified in ImageEmbedder.
 try:
     print(
         "[DEBUG app/api/v1/image.py] About to instantiate ImageEmbedder for the router."
     )
-    # model_cache_dir will use the default "./model_cache"
     image_embedder = ImageEmbedder()
     print(
         f"[DEBUG app/api/v1/image.py] Instantiated ImageEmbedder. Model name: {image_embedder.model_name}, Loaded: {image_embedder.model is not None}"
@@ -29,7 +25,7 @@ try:
     )
 except Exception as e:
     logger.error(f"Failed to initialize ImageEmbedder: {e}", exc_info=True)
-    image_embedder = None  # Ensure it's None if loading fails
+    image_embedder = None
 
 
 @router.post("/embeddings/image/upload", response_model=EmbeddingResponse)
@@ -37,14 +33,14 @@ async def create_image_embedding_upload_v1(
     image_file: UploadFile = File(...),
     model_name: Optional[str] = Body(
         None,
-        description="Опционально: имя модели для изображений. Если не указано, используется модель по умолчанию.",
+        description="Optional: model name for images. If not specified, the default model is used.",
     ),
     api_key: str = Depends(get_api_key),
 ):
     """
-    Создает эмбеддинг для загруженного изображения.
-    Параметр `model_name` в теле запроса на данный момент игнорируется этим эндпоинтом,
-    так как он использует фиксированный экземпляр ImageEmbedder с моделью по умолчанию.
+    Creates an embedding for the uploaded image.
+    The `model_name` parameter in the request body is currently ignored by this endpoint
+    as it uses a fixed ImageEmbedder instance with the default model.
     """
     if image_embedder is None:
         logger.error("Image embedder is not available due to loading failure.")
@@ -100,9 +96,9 @@ async def create_image_embedding_url_v1(
     request: ImageUrlRequest, api_key: str = Depends(get_api_key)
 ):
     """
-    Создает эмбеддинг для изображения по URL.
-    Параметр `model_name` в теле запроса на данный момент игнорируется этим эндпоинтом,
-    так как он использует фиксированный экземпляр ImageEmbedder с моделью по умолчанию.
+    Creates an embedding for an image from a URL.
+    The `model_name` parameter in the request body is currently ignored by this endpoint
+    as it uses a fixed ImageEmbedder instance with the default model.
     """
     if image_embedder is None:
         logger.error("Image embedder is not available due to loading failure.")

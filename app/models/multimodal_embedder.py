@@ -1,4 +1,4 @@
-import logging  # Import logging
+import logging
 from sentence_transformers import SentenceTransformer
 from PIL import Image, UnidentifiedImageError
 from io import BytesIO
@@ -10,7 +10,7 @@ logger = logging.getLogger(__name__)
 
 
 class MultimodalEmbedder(BaseEmbedder):
-    """Класс для мультимодальных эмбеддингов с использованием SentenceTransformer (CLIP модели)."""
+    """Class for multimodal embeddings using SentenceTransformer (CLIP models)."""
 
     description = (
         "Sentence Transformer CLIP model for multimodal (text/image) embeddings."
@@ -85,7 +85,7 @@ class MultimodalEmbedder(BaseEmbedder):
 
     def _load_image_from_source(self, image_source: Union[bytes, str]) -> Image.Image:
         image_bytes: bytes
-        if isinstance(image_source, str):  # Если URL
+        if isinstance(image_source, str):
             try:
                 response = requests.get(image_source, timeout=10)
                 response.raise_for_status()
@@ -94,7 +94,7 @@ class MultimodalEmbedder(BaseEmbedder):
                 logger.error(
                     f"Could not download image from URL: {image_source}. Error: {e}",
                     exc_info=True,
-                )  # Use logger
+                )
                 raise ValueError(
                     f"Could not download image from URL: {image_source}. Error: {e}"
                 )
