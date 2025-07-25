@@ -9,6 +9,8 @@ class ImageUrlRequest(BaseModel):
     url: str = Field(..., example="https://example.com/image.jpg")
     model_name: Optional[str] = Field(None, example="ViT-B/32", description="Опционально: указать конкретную модель изображений, если их несколько")
 
+# Для UploadFile нет стандартной Pydantic схемы, FastAPI обрабатывает это напрямую.
+
 class EmbeddingResponse(BaseModel):
     embedding: List[float]
     model_used: str
