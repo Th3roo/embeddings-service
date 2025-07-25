@@ -2,30 +2,18 @@ from sentence_transformers import SentenceTransformer
 from typing import List
 from .base_embedder import BaseEmbedder
 
-
 class TextEmbedder(BaseEmbedder):
     """Класс для эмбеддингов текста с использованием SentenceTransformer."""
-
     description = "Sentence Transformer model for text embeddings."
 
-    def __init__(
-        self,
-        model_name: str = "all-MiniLM-L6-v2",
-        model_cache_dir: str = "./model_cache",
-    ):
-        super().__init__(
-            model_name=model_name, model_type="text", model_cache_dir=model_cache_dir
-        )
+    def __init__(self, model_name: str = "all-MiniLM-L6-v2", model_cache_dir: str = "./model_cache"):
+        super().__init__(model_name=model_name, model_type="text", model_cache_dir=model_cache_dir)
         self._dimension = 0
 
     def _load_model(self):
-        print(
-            f"Loading text model: {self.model_name} from cache: {self.model_cache_dir}..."
-        )
+        print(f"Loading text model: {self.model_name} from cache: {self.model_cache_dir}...")
         try:
-            self.model = SentenceTransformer(
-                self.model_name, cache_folder=self.model_cache_dir
-            )
+            self.model = SentenceTransformer(self.model_name, cache_folder=self.model_cache_dir)
             dummy_embedding = self.model.encode("test")
             self._dimension = dummy_embedding.shape[0]
             print(f"Text model {self.model_name} loaded. Dimension: {self._dimension}")
@@ -43,11 +31,8 @@ class TextEmbedder(BaseEmbedder):
     @property
     def dimension(self) -> int:
         if self.model is None:
-            raise RuntimeError(
-                f"Text model {self.model_name} is not loaded, dimension unknown."
-            )
+            raise RuntimeError(f"Text model {self.model_name} is not loaded, dimension unknown.")
         return self._dimension
-
 
 # Пример добавления другой текстовой модели (если понадобится)
 # class AnotherTextEmbedder(TextEmbedder):

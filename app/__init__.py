@@ -10,7 +10,6 @@ REGISTERED_MODELS: Dict[str, Type[BaseEmbedder]] = {
 
 LOADED_MODELS: Dict[str, BaseEmbedder] = {}
 
-
 def get_embedder_instance(model_name: str) -> BaseEmbedder:
     """
     Возвращает инстанс эмбеддера по его имени.
@@ -27,56 +26,46 @@ def get_embedder_instance(model_name: str) -> BaseEmbedder:
         print(f"Model '{model_name}' initialized.")
     return LOADED_MODELS[model_name]
 
-
 def get_default_text_model_name() -> str:
     for name, klass in REGISTERED_MODELS.items():
-        if klass.mro()[1] == TextEmbedder or (
-            hasattr(klass, "model_type") and klass.model_type == "text"
-        ):  # Проверка базового класса
-            if (
-                hasattr(klass("", model_type="text"), "model_type")
-                and klass("", model_type="text").model_type == "text"
-            ):  # type: ignore
-                return name  # type: ignore
-    return "all-MiniLM-L6-v2"  # fallback
 
+        if klass.mro()[1] == TextEmbedder or (hasattr(klass, 'model_type') and klass.model_type == "text"): # Проверка базового класса
+
+            if hasattr(klass('', model_type='text'), 'model_type') and klass('', model_type='text').model_type == "text": # type: ignore
+                return name # type: ignore
+    return "all-MiniLM-L6-v2" # fallback
 
 def get_default_image_model_name() -> str:
     for name, klass in REGISTERED_MODELS.items():
-        if klass.mro()[1] == ImageEmbedder or (
-            hasattr(klass, "model_type") and klass.model_type == "image"
-        ):
-            if (
-                hasattr(klass("", model_type="image"), "model_type")
-                and klass("", model_type="image").model_type == "image"
-            ):  # type: ignore
-                return name  # type: ignore
-    return "google/vit-base-patch16-224"  # fallback
-
+        if klass.mro()[1] == ImageEmbedder or (hasattr(klass, 'model_type') and klass.model_type == "image"):
+             if hasattr(klass('', model_type='image'), 'model_type') and klass('', model_type='image').model_type == "image": # type: ignore
+                return name # type: ignore
+    return "google/vit-base-patch16-224" # fallback
 
 def get_available_models_info():
     infos = []
     for name, klass in REGISTERED_MODELS.items():
+
+
+
+
         try:
             instance = get_embedder_instance(name)
             infos.append(instance.get_model_info())
         except Exception as e:
             print(f"Could not get info for model {name} due to init error: {e}")
             model_type_from_class = "unknown"
-            if hasattr(klass, "model_type"):
+            if hasattr(klass, 'model_type'):
                 model_type_from_class = klass.model_type
-            elif "TextEmbedder" in str(klass):
-                model_type_from_class = "text"
-            elif "ImageEmbedder" in str(klass):
-                model_type_from_class = "image"
+            elif "TextEmbedder" in str(klass): model_type_from_class="text"
+            elif "ImageEmbedder" in str(klass): model_type_from_class="image"
 
-            infos.append(
-                {
-                    "model_name": name,
-                    "model_type": model_type_from_class,
-                    "description": f"Error loading/initializing: {str(e)}",
-                }
-            )
+            infos.append({
+                "model_name": name,
+                "model_type": model_type_from_class,
+                "description": f"Error loading/initializing: {str(e)}"
+            })
+
 
     return infos
 
